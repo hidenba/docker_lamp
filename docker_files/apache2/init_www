@@ -1,0 +1,5 @@
+#!/bin/bash
+
+chmod 777 /var/www
+mkdir /var/www/html
+echo "hi" >> /var/www/html/index.html

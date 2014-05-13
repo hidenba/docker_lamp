@@ -1,0 +1,6 @@
+#!/bin/bash
+
+mysql_install_db
+/usr/bin/mysqld_safe &
+sleep 3
+echo "GRANT ALL PRIVILEGES ON *.* TO root@'%';FLUSH PRIVILEGES;" | mysql
