@@ -1,8 +1,15 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    archive-tar-minitar (0.5.2)
     diff-lcs (1.2.5)
+    docker-api (1.10.10)
+      archive-tar-minitar
+      excon (>= 0.28)
+      json
+    excon (0.33.0)
     highline (1.6.21)
+    json (1.8.1)
     net-ssh (2.9.1)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
@@ -23,4 +30,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  docker-api
   serverspec
