@@ -14,8 +14,13 @@ ADD key/id_rsa.pub /root/.ssh/authorized_keys
 RUN chown root:root /root/.ssh/authorized_keys
 RUN sed -i 's/.*session.*required.*pam_loginuid.so.*/session optional pam_loginuid.so/g' /etc/pam.d/sshd
 
+# install supervisor
+RUN apt-get -y install supervisor
+RUN mkdir -p /var/log/supervisor
+ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Make port 22 accessible
 EXPOSE 22
 
 # Let's run the supervior
-CMD env | grep _ >> /etc/environment && /usr/sbin/sshd -D
+CMD /usr/bin/supervisord

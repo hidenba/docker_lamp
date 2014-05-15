@@ -15,13 +15,6 @@ RSpec.configure do |c|
   c.add_setting :containers
   c.containers = []
 
-  if ENV['ASK_SUDO_PASSWORD']
-    require 'highline/import'
-    c.sudo_password = ask("Enter sudo password: ") { |q| q.echo = false }
-  else
-    c.sudo_password = ENV['SUDO_PASSWORD']
-  end
-
   c.before :all do
     block = self.class.metadata[:example_group_block]
     file = block.source_location.first
@@ -30,17 +23,17 @@ RSpec.configure do |c|
       image = Docker::Image.build_from_dir(File.expand_path("docker_files/#{host}"))
       image.tag(repo: host, force: true)
       container = Docker::Container.create(Image: host,
-                                           Entrypoint: ['/usr/sbin/sshd'],
-                                           Cmd: ['-D'],
+                                           Cmd: ['/usr/bin/supervisord'],
                                            ExposedPorts: {'22/tcp' => {}})
       container.start(PortBindings: {'22/tcp' => [{HostIp: '0.0.0.0'}]})
       c.containers << container
 
-      sleep 1
       options = {
         keys: [File.expand_path('docker_files/sshd/key/id_rsa')],
         port: container.json['HostConfig']['PortBindings']['22/tcp'][0]['HostPort']
       }
+      tcp_pooling(container, options)
+
       c.ssh.close if c.ssh
       c.host  = host
       c.ssh   = Net::SSH.start('192.168.33.10', 'root', options)
@@ -49,5 +42,18 @@ RSpec.configure do |c|
 
   c.after :suite do
     c.containers.each { |con| con.kill.delete }
+    Docker::Image.all.select {|img| img.info['RepoTags'] == ['<none>:<none>']}.each do |img|
+      begin
+        img.remove(force: true)
+      rescue
+      end
+    end
+  end
+
+  def tcp_pooling(container, options)
+    sock = TCPSocket.open('192.168.33.10', options[:port])
+    sock.close
+  rescue Errno::ECONNREFUSED
+    container.json['State']['Running'] ? tcp_pooling(container, options) : raise('Container not Running')
   end
 end
