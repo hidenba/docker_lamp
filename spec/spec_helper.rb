@@ -26,6 +26,8 @@ RSpec.configure do |c|
     file = block.source_location.first
     host  = File.basename(Pathname.new(file).dirname)
     if c.host != host
+      image = Docker::Image.build_from_dir(File.expand_path("docker_files/#{host}"))
+      image.tag(repo: host, force: true)
       c.container = Docker::Container.create(Image: host,
                                            Entrypoint: ['/usr/sbin/sshd'],
                                            Cmd: ['-D'],
