@@ -42,12 +42,8 @@ RSpec.configure do |c|
 
   c.after :suite do
     c.containers.each { |con| con.kill.delete }
-    Docker::Image.all.select {|img| img.info['RepoTags'] == ['<none>:<none>']}.each do |img|
-      begin
-        img.remove(force: true)
-      rescue
-      end
-    end
+    Docker::Container.all(all: true).select{ |con| con.info['Status'].include?('Exit') }.each(&:delete)
+    Docker::Image.all.select {|img| img.info['RepoTags'] == ['<none>:<none>']}.each(&:remove)
   end
 
   def tcp_pooling(container, options)
