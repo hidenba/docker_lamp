@@ -1,9 +1,13 @@
 FROM sshd
 MAINTAINER Hidekuni KAJITA <h-kajita@esm.co.jp>
 
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ precise main" > /etc/apt/sources.list
+
 # install apache2 + php
 RUN apt-get update
-RUN apt-get -y install apache2 php5 libapache2-mod-php5
+RUN apt-get -y install apache2=2.2.22-1ubuntu1
+RUN apt-get -y install php5=5.3.10-1ubuntu3
+RUN apt-get -y install libapache2-mod-php5=5.3.10-1ubuntu3
 
 # ENV setup
 ENV APACHE_RUN_USER www-data

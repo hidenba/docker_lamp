@@ -1,8 +1,8 @@
 FROM ubuntu:14.04
 MAINTAINER Hidekuni KAJITA <h-kajita@esm.co.jp>
 
-ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update
+RUN apt-get install -y software-properties-common
 
 # install sshd
 RUN apt-get install -y openssh-server
