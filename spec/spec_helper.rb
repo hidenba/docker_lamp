@@ -17,8 +17,7 @@ RSpec.configure do |c|
 
   c.before :all do
     block = self.class.metadata[:example_group_block]
-    file = block.source_location.first
-    host  = File.basename(Pathname.new(file).dirname)
+    host  = Pathname(block.source_location.first).basename('_spec.rb')
     if c.host != host
       image = Docker::Image.build_from_dir(File.expand_path("docker_files/#{host}"))
       image.tag(repo: host, force: true)
